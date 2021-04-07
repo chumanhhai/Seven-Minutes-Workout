@@ -20,7 +20,8 @@
     <FrameLayout
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:background="@drawable/circular_downcount_bg">
+        android:background="@drawable/circular_downcount_bg"
+        android:layout_marginBottom="20dp">
         <ProgressBar
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -49,5 +50,4 @@
                 android:id="@+id/tv_countdown_number"/>
         </LinearLayout>
     </FrameLayout>
-
 </LinearLayout>

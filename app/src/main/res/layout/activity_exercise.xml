@@ -20,13 +20,28 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:visibility="gone"
+        android:gravity="center"
         android:id="@+id/ll_get_ready">
         <fragment
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:name="chumanhhailtt.sevenminutesworkout.CountdownFragment"
             tools:layout="@layout/fragment_countdown"
             android:id="@+id/fragment_countdown"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Upcoming exercise"
+            android:textSize="18sp"
+            android:layout_marginBottom="10dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jumping Hack"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:id="@+id/tv_next_exercise"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,6 +73,10 @@
             android:name="chumanhhailtt.sevenminutesworkout.CountdownFragment"
             tools:layout="@layout/fragment_countdown"/>
     </LinearLayout>
-
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:id="@+id/rv_exercise_status"
+        android:layout_margin="10dp" />
 </LinearLayout>

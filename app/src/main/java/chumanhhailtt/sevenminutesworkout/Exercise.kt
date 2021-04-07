@@ -1,23 +1,16 @@
 package chumanhhailtt.sevenminutesworkout
 
-//data class Exercise (
-//    var id: Int,
-//    var name: String,
-//    var image: Int,
-//    var length: Int,
-//    var isCompleted: Boolean,
-//    var isSelected: Boolean
-//)
-
 class Exercise (
     var name: String,
     var image: Int,
     var length: Int,
-    var isCompleted: Boolean,
-    var isSelected: Boolean
+    var status: Int
 ) {
     companion object {
         var num = 0
+        val DONE = 0
+        val DOING = 1
+        val NOT_YET = 2
     }
 
     var id: Int = num
