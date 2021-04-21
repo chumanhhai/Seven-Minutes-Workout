@@ -7,14 +7,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
 import java.util.*
 
-class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener, ExerciseStatusAdapter.JumpInToExercise {
 
     var toolbarExeciseActivity: Toolbar? = null
     var pbCountdown: ProgressBar? = null
@@ -28,11 +30,13 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     var rvExerciseStatus: RecyclerView? = null
 
     var rest = true
-    var exerciseLevel = 11
+    var exerciseLevel = 0
+    var exerciseCompleted = BooleanArray(Constants.exercises.size, { i -> false })
     var countdownTimer: CountDownTimer? = null
     var textToSpeech: TextToSpeech? = null
     var endingSound: MediaPlayer? = null
     var exerciseAdapter: ExerciseStatusAdapter? = null
+    var dbHelper: DBHelper? = null
 
     val COUNTDOWN_READY_NUM = 10
     val COUNTDOWN_READY_TITLE = "GET READY FOR"
@@ -50,6 +54,10 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             showWarningDialog()
         }
 
+        // set all exercises to be NOT_YET
+        for(ex: Exercise in Constants.exercises)
+            ex.status = Exercise.NOT_YET
+
         // get view
         ivExercise = findViewById(R.id.iv_exercise)
         llGetReady = findViewById(R.id.ll_get_ready)
@@ -57,6 +65,9 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         tvExerciseName = findViewById(R.id.tv_exercise_name)
         tvNextExercise = findViewById(R.id.tv_next_exercise)
         rvExerciseStatus = findViewById(R.id.rv_exercise_status)
+
+        // get dbhelper
+        dbHelper = DBHelper(this)
 
         // set up
         textToSpeech = TextToSpeech(this, this)
@@ -93,6 +104,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     Constants.exercises.get(exerciseLevel).status = Exercise.DONE
                     exerciseAdapter!!.notifyDataSetChanged()
 
+                    exerciseCompleted[exerciseLevel] = true
                     exerciseLevel++
                     if(exerciseLevel < Constants.exercises.size) {
                         rest = true
@@ -105,6 +117,16 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 }
             }
         }.start()
+    }
+
+    fun getNumberOfExerciseCompleted(): Int {
+        var num = 0
+
+        for(ex: Boolean in exerciseCompleted)
+            if(ex == true)
+                num++
+
+        return num
     }
 
     fun executeDoExcercise() {
@@ -151,9 +173,16 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     override fun onDestroy() {
+        // release resources
         countdownTimer?.cancel()
         textToSpeech?.shutdown()
         endingSound?.stop()
+
+        // save history
+        val progressPercent = 100*getNumberOfExerciseCompleted() / Constants.exercises.size
+        val date = SimpleDateFormat("dd/MMM/yyyy hh:mm:ss", Locale.getDefault()).format(Date(System.currentTimeMillis()))
+        dbHelper!!.addDate(History(date, progressPercent))
+
         super.onDestroy()
     }
 
@@ -183,5 +212,19 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             dialog.dismiss()
         }
         dialog.show()
+    }
+
+    override fun jumpIntoExerciseAction(idx: Int) {
+        // set not yet state for current level
+        Constants.exercises.get(exerciseLevel).status = Exercise.NOT_YET
+        exerciseAdapter!!.notifyDataSetChanged()
+
+        // cancel current countdown timer
+        countdownTimer!!.cancel()
+
+        // execute jumped level
+        rest = true
+        exerciseLevel = idx
+        executeRest()
     }
 }

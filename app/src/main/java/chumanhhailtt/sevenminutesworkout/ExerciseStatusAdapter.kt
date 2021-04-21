@@ -10,9 +10,21 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class ExerciseStatusAdapter(val context: Context, val itemsList: ArrayList<Exercise>): RecyclerView.Adapter<ExerciseStatusAdapter.ViewHolder>() {
+
+    var jie: JumpInToExercise? = null
+
+    interface JumpInToExercise {
+        fun jumpIntoExerciseAction(idx: Int)
+    }
+
+    init {
+        jie = context as JumpInToExercise
+    }
+
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val tvExerciseLevel = itemView.findViewById<TextView>(R.id.tv_exercise_level)
         val llExerciseStatusItem = itemView.findViewById<LinearLayout>(R.id.ll_exercise_status_item)
+        val view = itemView
 
     }
 
@@ -37,6 +49,9 @@ class ExerciseStatusAdapter(val context: Context, val itemsList: ArrayList<Exerc
                 holder.llExerciseStatusItem.background = ContextCompat.getDrawable(context, R.drawable.bg_item_not_yet_status)
                 holder.tvExerciseLevel.setTextColor(ContextCompat.getColor(context, R.color.black))
             }
+        }
+        holder.view.setOnClickListener {
+            jie!!.jumpIntoExerciseAction(position)
         }
     }
 
